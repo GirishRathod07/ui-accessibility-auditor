@@ -1,259 +1,118 @@
-const express = require("express");
-const cors = require("cors");
-const multer = require("multer");
-const { GoogleGenAI } = require("@google/genai");
+// ============================================
+// AI VISUAL FIX
+// ============================================
 
-const app = express();
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024,
-  },
-});
-
-app.use(cors());
-app.use(express.json());
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
-
-/* =========================================
-   HOME / HEALTH CHECK
-========================================= */
-
-app.get("/", (req, res) => {
-  res.json({
-    status: "online",
-    message: "UXAuditor backend is running",
-    model: "Gemma 4 Vision",
-  });
-});
-
-/* =========================================
-   GEMMA ANALYSIS
-========================================= */
-
-async function analyzeWithGemma(imageData, mimeType) {
-  const prompt = `
-You are an expert website UX and accessibility auditor.
-
-Analyze the provided website screenshot.
-
-Return ONLY valid JSON.
-Do not use markdown.
-Do not wrap the JSON in code fences.
-
-Use exactly this structure:
-
-{
-  "score": 0,
-  "summary": "",
-  "issues": [
-    {
-      "title": "",
-      "category": "",
-      "severity": "",
-      "reason": "",
-      "fix": ""
-    }
-  ]
-}
-
-Rules:
-
-- score must be between 0 and 100.
-- Find 3 to 8 important issues.
-- category must be one of:
-  "Accessibility",
-  "UX",
-  "Readability",
-  "Visual Design",
-  "Responsive"
-
-- severity must be one of:
-  "Critical",
-  "High",
-  "Medium",
-  "Low"
-
-- Only report problems that can reasonably be identified from the screenshot.
-- Do not claim to verify HTML, DOM, alt attributes, keyboard navigation,
-  JavaScript behavior, or exact WCAG compliance.
-- Keep reasons and fixes short and practical.
-- Focus on visible design, layout, readability, accessibility and UX.
-`;
-
-  const response = await ai.models.generateContent({
-    model: "gemma-4-31b-it",
-
-    contents: [
-      {
-        text: prompt,
-      },
-      {
-        inlineData: {
-          mimeType,
-          data: imageData,
-        },
-      },
-    ],
-  });
-
-  return response.text;
-}
-
-/* =========================================
-   ANALYZE ENDPOINT
-========================================= */
-
-app.post("/analyze", upload.single("screenshot"), async (req, res) => {
+app.post("/generate-fix", upload.single("screenshot"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
-        error: "No screenshot uploaded.",
+        error: "Screenshot is required."
       });
     }
-
-    console.log("\n=================================");
-    console.log("📸 Screenshot received");
-    console.log("📁 File:", req.file.originalname);
-    console.log("📦 Size:", req.file.size, "bytes");
-    console.log("🧠 Sending to Gemma 4...");
-    console.log("=================================\n");
 
     const imageData = req.file.buffer.toString("base64");
+    const mimeType = req.file.mimetype || "image/png";
 
-    let rawResult = null;
-    let lastError = null;
-
-    /*
-      Try Gemma up to 3 times.
-      This handles temporary 500 INTERNAL errors.
-    */
-
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        console.log(`🤖 Gemma attempt ${attempt}/3`);
-
-        rawResult = await analyzeWithGemma(
-          imageData,
-          req.file.mimetype
-        );
-
-        console.log("✅ Gemma response received");
-
-        break;
-      } catch (error) {
-        lastError = error;
-
-        console.error(
-          `❌ Gemma attempt ${attempt} failed:`,
-          error.message
-        );
-
-        if (attempt < 3) {
-          console.log("⏳ Retrying in 2 seconds...\n");
-
-          await new Promise((resolve) =>
-            setTimeout(resolve, 2000)
-          );
-        }
-      }
-    }
-
-    if (!rawResult) {
-      console.error("❌ All Gemma attempts failed.");
-
-      return res.status(502).json({
-        error: "Gemma temporarily failed.",
-        details: lastError?.message || "Unknown Gemini error",
-      });
-    }
-
-    console.log("\n===== RAW GEMMA OUTPUT =====");
-    console.log(rawResult);
-
-    /*
-      Remove accidental markdown fences
-    */
-
-    let cleaned = rawResult
-      .replace(/```json/gi, "")
-      .replace(/```/g, "")
-      .trim();
-
-    /*
-      If Gemma puts extra text around JSON,
-      extract the JSON object.
-    */
-
-    const firstBrace = cleaned.indexOf("{");
-    const lastBrace = cleaned.lastIndexOf("}");
-
-    if (firstBrace !== -1 && lastBrace !== -1) {
-      cleaned = cleaned.slice(firstBrace, lastBrace + 1);
-    }
-
-    let audit;
+    let issues = [];
 
     try {
-      audit = JSON.parse(cleaned);
-    } catch (parseError) {
-      console.error("❌ JSON parsing failed");
-      console.error(cleaned);
-
-      return res.status(500).json({
-        error: "Gemma returned invalid JSON.",
-        raw: cleaned,
-      });
+      issues = JSON.parse(req.body?.issues || "[]");
+    } catch {
+      issues = [];
     }
 
-    /*
-      Basic validation
-    */
+    const issueText = issues
+      .slice(0, 8)
+      .map(
+        (issue, index) =>
+          `${index + 1}. ${issue.title || "Issue"} — ${
+            issue.severity || "medium"
+          } — ${issue.fix || issue.reason || ""}`
+      )
+      .join("\n");
 
-    if (
-      typeof audit.score !== "number" ||
-      !Array.isArray(audit.issues)
-    ) {
-      return res.status(500).json({
-        error: "Gemma returned an unexpected response format.",
-      });
+    console.log("✨ Starting AI Visual Fix with Gemini 3.1 Flash Image...");
+
+    const prompt = `
+You are an expert UI/UX and accessibility designer.
+
+You are given a screenshot of an existing website and an accessibility/UX audit.
+
+Create an improved visual redesign of THE SAME WEBSITE.
+
+IMPORTANT RULES:
+
+- Preserve the original website's main purpose.
+- Preserve the recognizable structure and major sections.
+- Do NOT create an unrelated website.
+- Fix the accessibility and UX problems identified by the audit.
+- Improve color contrast.
+- Improve typography and readability.
+- Improve spacing and alignment.
+- Improve visual hierarchy.
+- Improve button visibility.
+- Improve accessibility.
+- Keep the design realistic and production-quality.
+- Keep the original content whenever possible.
+- Return ONE clean webpage screenshot.
+
+AUDIT ISSUES:
+
+${issueText || "Improve the overall accessibility, hierarchy, spacing, contrast and visual clarity."}
+`;
+
+    const interaction = await ai.interactions.create({
+      model: "gemini-3.1-flash-image",
+
+      input: [
+        {
+          type: "text",
+          text: prompt
+        },
+        {
+          type: "image",
+          mime_type: mimeType,
+          data: imageData
+        }
+      ],
+
+      response_format: {
+        type: "image",
+        mime_type: "image/png",
+        aspect_ratio: "16:9",
+        image_size: "1K"
+      }
+    });
+
+    const generatedImage = interaction.output_image;
+
+    if (!generatedImage || !generatedImage.data) {
+      throw new Error(
+        "Image generation returned no image data."
+      );
     }
 
-    console.log("\n✅ ANALYSIS COMPLETE");
-    console.log("Score:", audit.score);
-    console.log("Issues:", audit.issues.length);
-    console.log("=================================\n");
+    console.log("✅ AI Visual Fix generated successfully");
 
-    res.json(audit);
+    res.json({
+      image: `data:image/png;base64,${generatedImage.data}`,
+      model: "gemini-3.1-flash-image"
+    });
 
   } catch (error) {
-    console.error("\n🔥 SERVER ERROR");
-    console.error(error);
+
+    console.error(
+      "❌ AI Visual Fix failed:",
+      error
+    );
 
     res.status(500).json({
-      error: "Analysis failed.",
-      details: error.message,
+      error:
+        error?.message ||
+        "Failed to generate improved UI."
     });
   }
 });
-
-/* =========================================
-   SERVER
-========================================= */
-
-const PORT = 5000;
-
-app.listen(PORT, () => {
-  console.log("");
-  console.log("=================================");
-  console.log("🚀 UXAuditor Backend");
-  console.log("=================================");
-  console.log(`🌐 http://localhost:${PORT}`);
-  console.log("🧠 Model: Gemma 4 Vision");
-  console.log("=================================");
-  console.log("");
+app.listen(5000, () => {
+  console.log("🚀 Server running on http://localhost:5000");
 });

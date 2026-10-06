@@ -130,6 +130,9 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [dragging, setDragging] = useState(false);
+  const [fixLoading, setFixLoading] = useState(false);
+  const [fixedImage, setFixedImage] = useState("");
+  const [fixError, setFixError] = useState("");
 
   const fileInputRef = useRef(null);
   const previewUrlRef = useRef("");
@@ -206,6 +209,8 @@ function App() {
     updatePreview(selectedFile);
     setResult(null);
     setError(null);
+    setFixedImage("");
+    setFixError("");
   };
 
   const removeFile = () => {
@@ -298,6 +303,44 @@ function App() {
     } finally {
       submittingRef.current = false;
       setLoading(false);
+    }
+  };
+
+  /* ---------- AI Visual Fix ---------- */
+
+  const generateVisualFix = async () => {
+    if (!file || !result || fixLoading) return;
+
+    setFixLoading(true);
+    setFixError("");
+    setFixedImage("");
+
+    try {
+      const formData = new FormData();
+      formData.append("screenshot", file);
+      formData.append("issues", JSON.stringify(result.issues));
+
+      const response = await fetch("http://localhost:5000/generate-fix", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.image) {
+        throw new Error(
+          data?.message || "The AI visual redesign could not be generated."
+        );
+      }
+
+      setFixedImage(data.image);
+    } catch (err) {
+      console.error("[UXAuditor] Visual fix error:", err);
+      setFixError(
+        err.message || "Could not generate the improved UI. Please try again."
+      );
+    } finally {
+      setFixLoading(false);
     }
   };
 
@@ -558,6 +601,145 @@ function App() {
                 })
               )}
             </div>
+          </section>
+        )}
+
+        {result && (
+          <section
+            className="visual-fix-section"
+            aria-labelledby="visual-fix-title"
+            style={{
+              marginTop: "28px",
+              padding: "28px",
+              border: "1px solid rgba(167, 139, 250, 0.22)",
+              borderRadius: "24px",
+              background:
+                "linear-gradient(135deg, rgba(167,139,250,0.10), rgba(103,232,249,0.06))",
+              boxShadow: "0 18px 60px rgba(0,0,0,0.18)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "20px",
+                flexWrap: "wrap",
+                marginBottom: "22px",
+              }}
+            >
+              <div>
+                <span className="section-label">AI VISUAL FIX</span>
+                <h2 id="visual-fix-title" style={{ margin: "6px 0 8px" }}>
+                  See the improved UI
+                </h2>
+                <p style={{ margin: 0, opacity: 0.72 }}>
+                  Gemini turns the detected issues into a redesigned visual mockup.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="analyze-btn"
+                onClick={generateVisualFix}
+                disabled={fixLoading}
+                aria-busy={fixLoading}
+                style={{ minWidth: "220px", opacity: fixLoading ? 0.75 : 1 }}
+              >
+                {fixLoading ? (
+                  <>
+                    <span className="spinner" aria-hidden="true"></span>
+                    <span>Generating UI…</span>
+                  </>
+                ) : (
+                  <>
+                    <span>✨ Generate Improved UI</span>
+                    <span className="btn-arrow" aria-hidden="true">→</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {fixError && (
+              <div className="error-box" role="alert" style={{ marginBottom: "20px" }}>
+                <div className="error-title">
+                  <span aria-hidden="true">⚠</span>
+                  Visual fix failed
+                </div>
+                <p>{fixError}</p>
+                <small>Your original Gemma 4 audit is still available above.</small>
+              </div>
+            )}
+
+            {fixedImage && (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                  gap: "18px",
+                }}
+              >
+                <div
+                  style={{
+                    borderRadius: "18px",
+                    overflow: "hidden",
+                    border: "1px solid rgba(255,255,255,0.10)",
+                    background: "rgba(0,0,0,0.16)",
+                  }}
+                >
+                  <div style={{ padding: "12px 14px", fontWeight: 700 }}>
+                    Before · Original
+                  </div>
+                  <img
+                    src={previewUrl}
+                    alt="Original website screenshot"
+                    style={{ display: "block", width: "100%", height: "auto" }}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    borderRadius: "18px",
+                    overflow: "hidden",
+                    border: "1px solid rgba(167,139,250,0.30)",
+                    background: "rgba(0,0,0,0.16)",
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "12px 14px",
+                      fontWeight: 700,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: "12px",
+                    }}
+                  >
+                    <span>After · AI Improved</span>
+                    <span style={{ opacity: 0.65 }}>Nano Banana 2</span>
+                  </div>
+                  <img
+                    src={fixedImage}
+                    alt="AI-generated improved version of the website"
+                    style={{ display: "block", width: "100%", height: "auto" }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {!fixedImage && !fixLoading && !fixError && (
+              <div
+                style={{
+                  padding: "24px",
+                  borderRadius: "16px",
+                  border: "1px dashed rgba(255,255,255,0.14)",
+                  textAlign: "center",
+                  opacity: 0.72,
+                }}
+              >
+                Click <strong>Generate Improved UI</strong> to create a visual redesign
+                based on the audit.
+              </div>
+            )}
           </section>
         )}
 
