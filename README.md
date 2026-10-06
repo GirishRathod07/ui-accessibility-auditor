@@ -1,36 +1,32 @@
-<<<<<<< HEAD
-# ♿ AI Accessibility & UX Auditor
+# AI Accessibility & UX Auditor
 
-> **AI-powered accessibility and UX analysis using Gemma 4 Vision — with AI-generated visual improvements.**
+AI-powered accessibility and UX analysis using **Gemma 4 Vision**, with AI-generated visual improvements.
 
-An intelligent web accessibility and UX auditing tool that analyzes website screenshots, identifies usability and accessibility problems, explains the issues, and suggests practical improvements.
+AI Accessibility & UX Auditor analyzes website screenshots to identify accessibility and usability issues, provides explanations and actionable recommendations, and generates an improved visual version of the interface.
 
-The project also includes an **AI Visual Fix** feature that generates an improved version of the analyzed UI.
+## Features
 
----
+### Screenshot Analysis
 
-## 🚀 Features
-
-### 🔍 AI Screenshot Analysis
-Upload a screenshot of any website UI and get an AI-powered accessibility and UX audit.
+Upload a website screenshot and receive an AI-powered accessibility and UX audit.
 
 The system analyzes:
 
-- 🎨 Color contrast
-- 📝 Typography and readability
-- 📐 Spacing and alignment
-- 🧭 Visual hierarchy
-- 🔘 Button visibility
-- ♿ Accessibility issues
-- 📱 General UX problems
+- Color contrast
+- Typography and readability
+- Spacing and alignment
+- Visual hierarchy
+- Button visibility
+- Accessibility concerns
+- General UX issues
 
-### 📊 Accessibility Score
+### Accessibility Score
 
-The analyzer generates an overall score based on the detected issues and provides a quick overview of the UI quality.
+The application generates an overall accessibility and UX score based on the detected issues, providing a quick assessment of the interface.
 
-### ⚠️ Issue Detection
+### Issue Detection
 
-Every detected problem includes:
+Each detected issue includes:
 
 - Issue title
 - Category
@@ -38,58 +34,60 @@ Every detected problem includes:
 - Explanation
 - Recommended fix
 
-Severity levels:
+Issues are categorized by severity:
 
-- 🔴 High
-- 🟠 Medium
-- 🟢 Low
+- **High**
+- **Medium**
+- **Low**
 
-### ✨ AI Visual Fix
+### AI Visual Fix
 
-After analyzing the screenshot, users can click:
+After the analysis, users can generate an improved version of the interface using the **Generate Improved UI** feature.
 
-**✨ Generate Improved UI**
+The system uses the original screenshot together with the detected audit issues to generate a redesigned version that focuses on:
 
-The AI uses the original screenshot and detected audit issues to create an improved visual version of the same website.
+- Improved contrast
+- Better typography
+- Clearer visual hierarchy
+- Improved spacing
+- Better button visibility
+- Improved accessibility
+- Better overall usability
 
-This helps users visually understand what a more accessible and user-friendly design could look like.
+The original design and improved version can then be compared side by side.
 
----
-
-## 🧠 How It Works
+## How It Works
 
 ```text
-        Website Screenshot
-                │
-                ▼
-        ┌─────────────────┐
-        │    Gemma 4      │
-        │  Vision Model   │
-        └────────┬────────┘
-                 │
-                 ▼
-       Accessibility & UX
-             Analysis
-                 │
-        ┌────────┴─────────┐
-        ▼                  ▼
-   Score & Issues      Recommended
-                       Improvements
+Website Screenshot
         │
         ▼
-  Generate Improved UI
-        │
-        ▼
- Gemini 3.1 Flash Image
-    (Nano Banana 2)
-        │
-        ▼
-  Improved UI Screenshot
+┌──────────────────┐
+│     Gemma 4      │
+│   Vision Model   │
+└────────┬─────────┘
+         │
+         ▼
+ Accessibility & UX
+      Analysis
+         │
+    ┌────┴─────┐
+    ▼          ▼
+Score &      Recommended
+Issues       Improvements
+    │
+    ▼
+Generate Improved UI
+    │
+    ▼
+Gemini 3.1 Flash Image
+   (Nano Banana 2)
+    │
+    ▼
+Improved UI Screenshot
 ```
 
----
-
-## 🛠️ Tech Stack
+## Technology Stack
 
 ### Frontend
 
@@ -108,8 +106,8 @@ This helps users visually understand what a more accessible and user-friendly de
 
 ### AI
 
-- **Gemma 4 Vision** — accessibility and UX analysis
-- **Gemini 3.1 Flash Image (Nano Banana 2)** — visual UI improvement
+- **Gemma 4 Vision** — screenshot accessibility and UX analysis
+- **Gemini 3.1 Flash Image (Nano Banana 2)** — AI-generated visual improvements
 
 ### Development
 
@@ -117,9 +115,7 @@ This helps users visually understand what a more accessible and user-friendly de
 - GitHub
 - npm
 
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```text
 ui-accessibility-auditor/
@@ -139,46 +135,39 @@ ui-accessibility-auditor/
 └── README.md
 ```
 
----
+## Installation
 
-## ⚙️ Installation
-
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/GirishRathod07/ui-accessibility-auditor.git
-```
-
-```bash
 cd ui-accessibility-auditor
 ```
 
----
-
-### 2. Install backend dependencies
+### 2. Install Backend Dependencies
 
 ```bash
 cd backend
 npm install
 ```
 
----
+### 3. Configure the Gemini API Key
 
-### 3. Add your Gemini API key
-
-Set the API key as an environment variable.
+The backend requires a Gemini API key.
 
 #### Windows PowerShell
 
 ```powershell
-$env:GEMINI_API_KEY="YOUR_NEW_API_KEY"
+$env:GEMINI_API_KEY="YOUR_API_KEY"
 ```
 
-Do **not** commit your API key to GitHub.
+Do not commit API keys or other secrets to the repository.
 
----
+For production deployments, use your hosting provider's environment-variable system or a properly configured `.env` file.
 
-### 4. Start the backend
+### 4. Start the Backend
+
+From the `backend` directory:
 
 ```bash
 node server.js
@@ -190,17 +179,15 @@ The backend runs on:
 http://localhost:5000
 ```
 
-You should see:
+Expected output:
 
 ```text
-🚀 Server running on http://localhost:5000
+Server running on http://localhost:5000
 ```
 
----
+### 5. Start the Frontend
 
-### 5. Start the frontend
-
-Open another terminal:
+Open a second terminal:
 
 ```bash
 cd frontend
@@ -208,50 +195,32 @@ npm install
 npm run dev
 ```
 
-Then open the Vite URL shown in your terminal, usually:
+Vite will provide a local development URL, usually:
 
 ```text
 http://localhost:5173
 ```
 
----
-
-## 🔐 Environment Variables
-
-The backend requires:
-
-```text
-GEMINI_API_KEY=YOUR_NEW_API_KEY
-```
-
-For production, use a `.env` file or your hosting provider's environment-variable system.
-
-Make sure `.env` is included in `.gitignore`.
-
----
-
-## 📸 Usage
+## Usage
 
 1. Open the web application.
 2. Upload a website screenshot.
-3. Click **Analyze Screenshot**.
+3. Select **Analyze Screenshot**.
 4. Wait for the Gemma 4 analysis.
-5. Review the accessibility score.
-6. Review detected UX/accessibility issues.
-7. Read the recommended fixes.
-8. Click **Generate Improved UI**.
-9. Compare the original screenshot with the AI-improved version.
+5. Review the accessibility and UX score.
+6. Review the detected issues and their severity.
+7. Read the recommended improvements.
+8. Select **Generate Improved UI**.
+9. Compare the original screenshot with the AI-generated improved version.
 
----
-
-## 🎯 Example Workflow
+## Example Workflow
 
 ```text
 Upload Screenshot
        ↓
-AI Analysis
+Gemma 4 Analysis
        ↓
-Accessibility Score
+Accessibility & UX Score
        ↓
 Detected Issues
        ↓
@@ -262,29 +231,31 @@ Generate Improved UI
 Before / After Comparison
 ```
 
----
+## Why This Project?
 
-## 💡 Why This Project?
+Traditional accessibility tools often provide technical reports that can be difficult for designers and developers to interpret.
 
-Many accessibility auditing tools provide technical reports that can be difficult for designers and developers to understand.
+This project combines:
 
-This project makes accessibility feedback more practical by combining:
+**AI analysis + explanations + actionable recommendations + visual improvements**
 
-**AI analysis + clear explanations + actionable fixes + visual redesign**
+Instead of simply identifying a problem, the application aims to communicate:
 
-Instead of only saying:
+```text
+What is wrong
+      ↓
+Why it matters
+      ↓
+How to fix it
+      ↓
+What an improved interface could look like
+```
 
-> "The contrast ratio is poor."
+This makes accessibility feedback easier to understand and apply during the design and development process.
 
-The system helps communicate:
+## Hackathon
 
-> What is wrong → Why it matters → How to fix it → What an improved design could look like.
-
----
-
-## 🏆 Hackathon
-
-This project was developed for:
+Developed for:
 
 **Hacktoberfest × MSC KBTCOE Nashik 2026**
 
@@ -292,13 +263,11 @@ This project was developed for:
 
 **Best Use of Gemma 4**
 
-Gemma 4 is used as the core vision model for analyzing website screenshots and identifying accessibility and UX problems.
+Gemma 4 is used as the core vision model for analyzing website screenshots and identifying accessibility and UX issues.
 
-The visual redesign feature uses a separate image-generation model to demonstrate the recommended improvements.
+The AI Visual Fix feature uses a separate image-generation model to demonstrate how the identified improvements could be applied visually.
 
----
-
-## 🔮 Future Improvements
+## Future Improvements
 
 - [ ] WCAG rule mapping
 - [ ] Automatic color contrast calculations
@@ -307,49 +276,21 @@ The visual redesign feature uses a separate image-generation model to demonstrat
 - [ ] Mobile responsiveness analysis
 - [ ] HTML/CSS accessibility scanning
 - [ ] Browser extension
-- [ ] Export audit reports
+- [ ] Audit report export
 - [ ] AI-generated HTML/CSS fixes
-- [ ] Side-by-side interactive comparison
+- [ ] Interactive before/after comparison
 - [ ] Accessibility trend tracking
 
----
-
-## 👨‍💻 Author
+## Author
 
 **Girish Rathod**
 
 Computer Engineering Student  
-SPPU | India
+SPPU, India
 
 GitHub:  
 https://github.com/GirishRathod07
 
----
+## License
 
-## ⭐ Support
-
-If you find this project useful, consider giving the repository a ⭐ on GitHub.
-
----
-
-## 📄 License
-
-This project is created for educational and hackathon purposes.
-=======
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
->>>>>>> cf4200f (Add AI visual fix and project README)
+This project was developed for educational and hackathon purposes.
